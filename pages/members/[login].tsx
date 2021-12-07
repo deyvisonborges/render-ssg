@@ -12,6 +12,14 @@ type ParamsProps = {
   login?: string
 }
 
+type Props = {
+  error?: number
+  user?: {
+    name: string
+    bio: string
+  }
+}
+
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
     const { data } = await axios.get(`https://api.github.com/orgs/rocketseat/members`)
@@ -31,7 +39,7 @@ export const getStaticProps: GetStaticProps = async (context: GetStaticPropsCont
     const login = context.params?.login
     if (!login) return { props: { errorMessage: "algo deu errado" } }
 
-    const { data } = await axios.get(`https://api.github.com/users/${login}`)
+    const { data } = await axios.get(`https://aperi.gierthub.com/uswerers/${login}`)
 
     return {
       props: {
@@ -44,30 +52,25 @@ export const getStaticProps: GetStaticProps = async (context: GetStaticPropsCont
       props: {
         error: error?.response?.status || ""
       },
-      notFound: false
+      // se eu colocar como false, eu posso tratar o erro de forma customizada
+      // se eu deixar false, ele "redireciona", para a page 404 default de erro
+      notFound: true
     }
   }
 }
 
 
-export default function Member({ user, error, errorMessage }: any) {
+export default function Member({ user, error }: Props) {
   const { query, isFallback } = useRouter()
 
-
-  console.log(user, error, errorMessage, "sodkfwekoprkweopk")
-
-  if (errorMessage) return <p>{errorMessage}</p>
-
-  if ([401, 403, 404, 500].includes(error)) {
-    return <p>nao foi possivel gerar essa pagina</p>
-  }
+  if ([401, 403, 404, 500].includes(Number(error))) return window.alert("Okok")
   if (isFallback) return <p>Carregando...</p>
 
   return (
     <>
       <h1>{query.login}</h1>
-      <p>{user.name}</p>
-      <p>{user.bio}</p>
+      <p>{user?.name}</p>
+      <p>{user?.bio}</p>
     </>
   )
 }
